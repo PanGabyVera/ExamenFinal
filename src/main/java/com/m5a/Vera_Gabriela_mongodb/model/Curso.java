@@ -17,7 +17,7 @@ private Long curso_id;
 private Profesor prof_id;
 private String nombre;
 private String descripcion;
-private Long nivel;
+private String nivel;
 
     public Curso() {
     }
@@ -54,11 +54,11 @@ private Long nivel;
         this.descripcion = descripcion;
     }
 
-    public Long getNivel() {
+    public String getNivel() {
         return nivel;
     }
 
-    public void setNivel(Long nivel) {
+    public void setNivel(String nivel) {
         this.nivel = nivel;
     }
 

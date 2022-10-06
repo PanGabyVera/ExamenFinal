@@ -19,11 +19,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-
 @RestController
 @RequestMapping("/api/depto")
 public class DeptoController {
-
 
     @Autowired
     DeptoService service;
@@ -34,13 +32,32 @@ public class DeptoController {
     }
 
     @GetMapping("/buscar/{id}")
-    public ResponseEntity<Depto> buscar(@PathVariable Long id) {
-        return new ResponseEntity<>(service.findById(id), HttpStatus.OK);
+    public ResponseEntity<?> buscar(@PathVariable Long id) {
+        if (id <= 0) {
+            return new ResponseEntity<>("Valor no valido", HttpStatus.BAD_REQUEST);
+        } else if (service.findById(id) == null) {
+            return new ResponseEntity<>("Valor no encontrado", HttpStatus.BAD_REQUEST);
+        } else {
+            return new ResponseEntity<>(service.findById(id), HttpStatus.OK);
+        }
     }
 
     @PostMapping("/crear")
-    public ResponseEntity<Depto> crear(@RequestBody Depto e) {
-        return new ResponseEntity<>(service.save(e), HttpStatus.CREATED);
+    public ResponseEntity<?> crear(@RequestBody Depto e) {
+        if (e.getNombre().isEmpty() || e.getDireccion().isEmpty() || e.getDirector().isEmpty()) {
+            return new ResponseEntity<>("Deben estar llenos todos los campos", HttpStatus.BAD_REQUEST);
+            //.matches("[a-zA-Z]")
+        } else if (!e.getNombre().matches("[a-zA-Z]*") || !e.getDireccion().matches("[a-zA-Z]*") || !e.getDirector().matches("[a-zA-Z]*")) {
+            return new ResponseEntity<>("Debe ser solo letras", HttpStatus.BAD_REQUEST);
+
+        } else if (e.getNombre().length() >= 25) {
+            return new ResponseEntity<>("El nombre es muy grande", HttpStatus.BAD_REQUEST);
+
+        } else if (e.getDireccion().length() > 50 || e.getDirector().length() > 50) {
+            return new ResponseEntity<>("La direccion o el director es muy grande", HttpStatus.BAD_REQUEST);
+        } else {
+            return new ResponseEntity<>(service.save(e), HttpStatus.CREATED);
+        }
     }
 
     @DeleteMapping("/eliminar/{id}")
@@ -50,16 +67,28 @@ public class DeptoController {
     }
 
     @PutMapping("/actualizar/{id}")
-    public ResponseEntity<Depto> actualizar(@PathVariable Long id, @RequestBody Depto e) {
+    public ResponseEntity<?> actualizar(@PathVariable Long id, @RequestBody Depto e) {
         Depto p = service.findById(id);
         if (p == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } else {
             try {
-                p.setNombre(e.getNombre());
-                p.setDireccion(e.getDireccion());
-                p.setDirector(e.getDirector());
+                if (e.getNombre().isEmpty() || e.getDireccion().isEmpty() || e.getDirector().isEmpty()) {
+                    return new ResponseEntity<>("Deben estar llenos todos los campos", HttpStatus.BAD_REQUEST);
+                    //.matches("[a-zA-Z]")
+                } else if (!e.getNombre().matches("[a-zA-Z]*") || !e.getDireccion().matches("[a-zA-Z]*") || !e.getDirector().matches("[a-zA-Z]*")) {
+                    return new ResponseEntity<>("Debe ser solo letras", HttpStatus.BAD_REQUEST);
 
+                } else if (e.getNombre().length() >= 25) {
+                    return new ResponseEntity<>("El nombre es muy grande", HttpStatus.BAD_REQUEST);
+
+                } else if (e.getDireccion().length() > 50 || e.getDirector().length() > 50) {
+                    return new ResponseEntity<>("La direccion o el director es muy grande", HttpStatus.BAD_REQUEST);
+                } else {
+                    p.setNombre(e.getNombre());
+                    p.setDireccion(e.getDireccion());
+                    p.setDirector(e.getDirector());
+                }
                 return new ResponseEntity<>(service.save(e), HttpStatus.OK);
             } catch (Exception ex) {
                 return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -67,5 +96,5 @@ public class DeptoController {
 
         }
     }
-    
+
 }

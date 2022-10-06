@@ -45,17 +45,18 @@ public class ProfesorController {
 
     @PostMapping("/crear")
     public ResponseEntity<?> crear(@RequestBody Profesor e) {
-        if (e.getNombre().isEmpty() || e.getDepto_id().equals(0) || e.getDireccion().isEmpty() || e.getTelefono().isEmpty()) {
+        if (e.getNombre().isEmpty() || e.getDireccion().isEmpty() || e.getTelefono().isEmpty() ) {
             return new ResponseEntity<>("Deben estar llenos todos los campos", HttpStatus.BAD_REQUEST);
-        //.matches("[a-zA-Z]")
-        }
-        if (!e.getNombre().matches("[a-zA-Z]*") || !e.getDireccion().matches("[a-zA-Z]*")) {
+            //.matches("[a-zA-Z]")
+        } else if (!e.getNombre().matches("[a-zA-Z]*") || !e.getDireccion().matches("[a-zA-Z]*") ){
             return new ResponseEntity<>("Debe ser solo letras", HttpStatus.BAD_REQUEST);
-         
-        }else if (!e.getTelefono().matches("[0-9]*")) {
-            return new ResponseEntity<>("Debe ser numero en el telefono", HttpStatus.BAD_REQUEST);
-         
-        }else{
+
+        } else if (e.getNombre().length() >= 25) {
+            return new ResponseEntity<>("El nombre es muy grande", HttpStatus.BAD_REQUEST);
+
+        } else if (e.getDireccion().length() > 50 || e.getTelefono().length() > 10) {
+            return new ResponseEntity<>("La direccion o  el telefono es muy grande", HttpStatus.BAD_REQUEST);
+        } else {
             return new ResponseEntity<>(service.save(e), HttpStatus.CREATED);
         }
     }
